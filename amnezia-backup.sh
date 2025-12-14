@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Configuration
-BACKUP_DIR="./amnezia_opt_backups"
+BACKUP_DIR="./amnezia-opt-backups"
 CONTAINER_PREFIX="amnezia"
-DATE_SUFFIX=$(date +%Y%m%d_%H%M%S)
+DATE_SUFFIX=$(date +%Y-%m-%d-%H-%M-%S)
 
 # --- BLACKLIST: Containers to be excluded from backup and restore ---
 # Only 'amnezia-dns' is blacklisted as per request.
@@ -34,7 +34,7 @@ backup_container_opt() {
     
     # 2. Copy /opt/ out of the container
     echo "  Copying /opt/ from container..."
-    if ! docker cp "$CONTAINER_NAME":/opt/ "$TEMP_DIR/${CONTAINER_NAME}_opt"; then
+    if ! docker cp "$CONTAINER_NAME":/opt/ "$TEMP_DIR/${CONTAINER_NAME}-opt"; then
         echo "  ERROR: Failed to copy /opt/ using docker cp. Skipping."
         rm -rf "$TEMP_DIR"
         return 1
@@ -42,7 +42,7 @@ backup_container_opt() {
 
     # 3. Compress the copied /opt/ directory into a single tar.gz
     echo "  Compressing into $BACKUP_FILE..."
-    if ! tar czf "$BACKUP_FILE" -C "$TEMP_DIR" "${CONTAINER_NAME}_opt"; then
+    if ! tar czf "$BACKUP_FILE" -C "$TEMP_DIR" "${CONTAINER_NAME}-opt"; then
         echo "  ERROR: Failed to create tar.gz archive. Skipping."
         rm -rf "$TEMP_DIR"
         return 1
@@ -85,7 +85,7 @@ restore_container_opt() {
     fi
     
     echo "  Copying /opt/ content back into container..."
-    if docker cp "$TEMP_DIR/${CONTAINER_NAME}_opt/." "$CONTAINER_NAME:/opt/"; then
+    if docker cp "$TEMP_DIR/${CONTAINER_NAME}-opt/." "$CONTAINER_NAME:/opt/"; then
         echo "  SUCCESS: /opt/ content updated."
     else
         echo "  ERROR: docker cp failed. Manual check required."
